@@ -9,7 +9,6 @@ def http_method():
     username = request.json.get('username')
     email = request.json.get('email')
     if request.method == 'PUT':
-        username = request.json.get('username')
         new_email = request.json.get('email')
         admin = User.query.filter_by(username=username).first()
         admin.email = new_email
@@ -41,8 +40,44 @@ def http_method():
         return 'Created new user with email {}'.format(email)
 
 
-
-
+#
+# @app.route('/template', methods=['PUT','POST','GET','DELETE'])
+#
+# def http_method():
+#     tile = request.json.get('title')
+#     para1 = request.json.get('para1')
+#     para2 = request.json.get('para2')
+#     para3 = request.json.get('para3')
+#     if request.method == 'PUT':
+#         new_email = request.json.get('email')
+#         admin = User.query.filter_by(username=username).first()
+#         admin.email = new_email
+#         db.session.commit()
+#         return 'updated email id is '+ new_email
+#
+#     elif request.method == 'GET':
+#         s={}
+#         user = User.query.all()
+#         print(user)
+#         i=0
+#         for use in user:
+#             s[i]={
+#                 username:use.username,
+#                 email:use.email
+#             }
+#             i+=1
+#         return s
+#
+#     elif request.method == 'DELETE':
+#         User.query.filter_by(username=username,email=email).delete()
+#         db.session.commit()
+#         return 'success deletion with username{}'.format(username)
+#
+#     elif request.method == 'POST':
+#         user= User(username=username,email=email)
+#         db.session.add(user)
+#         db.session.commit()
+#         return 'Created new user with email {}'.format(email)
 
 @app.route('/')
 def hello():
