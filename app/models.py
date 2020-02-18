@@ -6,7 +6,6 @@ class User(db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    # posts = db.relationship('Post', backref='author', lazy='dynamic')
     __tablename__ = 'Customer'
 
     def __repr__(self):
@@ -18,11 +17,10 @@ class Template(db.Model):
     para1 = db.Column(db.String(120), nullable=True)
     para2 = db.Column(db.String(128))
     para3 = db.Column(db.String(128))
-    # posts = db.relationship('Post', backref='author', lazy='dynamic')
     __tablename__ = 'Template'
 
     def __repr__(self):
-        return '<Template {}>'.format(self.title)
+        return '<Template {}>'.format(self.Title)
 
 
     # #one to many
