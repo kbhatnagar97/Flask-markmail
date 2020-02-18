@@ -15,12 +15,12 @@ def http_method(username,email):
     elif request.method == 'GET':
         user = User.query.filter_by(username=username,email=email)
         user = user.first()
-        return 'email is {}'.format(User.email)
+        return 'email is {}'.format(email)
 
     elif request.method == 'DELETE':
         User.query.filter_by(username=username,email=email).delete()
         db.session.commit()
-        return 'success deletion with username{}'.format(username)
+        return 'success deletion with username{} '.format(username)
 
     elif request.method == 'POST':
         user= User(username=username,email=email)
@@ -33,7 +33,8 @@ def http_method(username,email):
 
 
 @app.route('/')
-def hello():
+def template():
+    db.session.commit()
     return '<h1><center><b>Thank you</b></center></h1>' \
            '<p>Hi</p>' \
            '<p>Thank you for being part of our family. Hope you will have a <br>nice experience with us.</p>' \
