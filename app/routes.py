@@ -6,7 +6,6 @@ from flask_mail import Mail
 from flask_mail import Message
 from io import TextIOWrapper
 from sqlalchemy.exc import IntegrityError
-# Student, Adress, ContactInfo, Page, Tag, Person
 
 app.config['MAIL_SERVER']='localhost' #running on this
 app.config['MAIL_PORT'] = 2525 #port number
@@ -69,6 +68,18 @@ def http_method():
             raise customException1
         return 'Successfully added {}\'s data'.format(first_name)
 
+@app.route('/customers', methods=['GET'])
+def customer_all():
+    users=Customer.query.filter_by().all()
+    temp_list=list()
+    for user in users:
+        temp_list.append(user.first_name+" "+user.last_name+" "+user.email)
+    return str(temp_list)
+
+@app.route('/customer/<id>', methods=['GET'])
+def customer_search(id):
+    users=Customer.query.filter_by(id=id).first()
+    return {"first_name":users.first_name,"last_name":users.last_name,"id":users.id,"email":users.email,"gender":users.gender}
 
 @app.route('/user/CSV', methods=['POST'])
 def customer():
@@ -120,6 +131,7 @@ def template():
         db.session.commit()
         return 'updated template'
     #Get Method
+
     elif request.method == 'GET':
          template= Template.query.filter_by(id=id).first()
          return "<h1><center>{}</center></h1> \
@@ -143,11 +155,47 @@ def template():
             raise customException2
         return 'Created template'
 
-@app.route("/mail")
+
+@app.route("/mail",methods=['POST'])
 def send_mail():
-   msg = Message(sender = 'test1@gmail.com', recipients = ['test2@gmail.com'])
-   msg.body = "This is the email body"
-   msg.subject = "Test Email"
-   mail.send(msg)
-   return "Email Sent"
+    if request.method == 'POST' :
+       for email in request.json["recipients"]:
+           msg = Message(sender = 'test1@gmail.com', recipients = [email])
+           msg.html =  "<h1>\
+	                        <center><b>Thank you</b></center>\
+                        </h1>\
+                        <p>Hi</p>\
+                        <p>Thank you for being part of our family. Hope you will have a \
+                       <br> nice experience with us.</p>\
+	                    <p>For any queries visit our website<br> \
+                       Thank you<br>HU2k20.com</p>"
+           msg.subject = "Test Email"
+           mail.send(msg)
+    return "Email Sent"
+
+@app.route("/dmail",methods=['POST'])
+def send_dmail():
+    if request.method == 'POST' :
+       for email in request.json["recipients"]:
+           msg = Message(sender = 'test1@gmail.com', recipients = [email])
+           temp_user=Customer.query.filter_by(email=email).first()
+           msg.html = "<h1>\
+	                        <center><b>New Years Sales</b></center>\
+                        </h1>\
+                        <p>Hi {} {},<br><br>Wish you a very happy new year. As you have done shopping worth 7000<br> \
+                      this year, we have surprise for you.\
+                      <br><br>\
+                      Below is a coupon for  this  new year sale to bring more joy to in the<br> \
+                      coming year.	</p> \
+                      <br><br>\
+                        <p><center>Coupon Code \
+                      <br><br>\
+                      <h1><b>MMCDD2020<b></h1></center></p>\
+                        <p>For any queries visit our website \
+                      <br><br> \
+                      Thank you<br> \
+                      HU2k20.com</p>".format(temp_user.first_name,temp_user.last_name)
+           msg.subject = "Test Email"
+           mail.send(msg)
+    return "Email Sent"
 
