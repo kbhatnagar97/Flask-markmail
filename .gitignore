@@ -90,6 +90,8 @@ celerybeat-schedule
 # Environments
 .env
 .venv
+.mainenv
+mainenv/
 env/
 venv/
 ENV/

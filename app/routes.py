@@ -1,7 +1,14 @@
 from flask import request
 from app import app, db
 from app.models import User, Template
+from flask_mail import Mail,Message
+import csv
     # Student, Adress, ContactInfo, Page, Tag, Person
+
+app.config['MAIL_SERVER']='localhost'
+app.config['MAIL_PORT'] = 225
+mail = Mail(app)
+
 
 @app.route('/user', methods=['PUT','POST','GET','DELETE'])
 
@@ -17,16 +24,6 @@ def http_method():
     phoneNumber = request.json.get('phoneNumber')
     registrationDate = request.json.get('registrationDate')
     if request.method == 'PUT':
-        # new_first_name = request.json.get('first_name')
-        # new_last_name = request.json.get('last_name')
-        # new_gender = request.json.get('gender')
-        # new_email = request.json.get('email')
-        # new_age = request.json.get('age')
-        # new_address= request.json.get('address')
-        # new_state = request.json.get('state')
-        # new_zipcode = request.json.get('zipcode')
-        # new_phoneNumber = request.json.get('phoneNumber')
-        # new_registrationDate = request.json.get('registrationDate')
         admin = User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate).first()
         admin.email = email
         admin.first_name = first_name
@@ -63,7 +60,7 @@ def http_method():
         return s
 
     elif request.method == 'DELETE':
-        User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate).delete()
+        User.query.filter_by(email=email).delete()
         db.session.commit()
         return 'success deletion with username'
 
@@ -112,3 +109,10 @@ def template():
         db.session.add(template)
         db.session.commit()
         return 'Created template'
+
+@app.route("/mail")
+def index():
+   msg = Message('Hello', sender = 'kshitij@gmail.com', recipients = ['id1@gmail.com'])
+   msg.body = "This is the email body"
+   mail.send(msg)
+   return "Sent"
