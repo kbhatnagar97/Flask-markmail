@@ -4,6 +4,7 @@ from app.models import User, Template
 from flask_mail import Mail
 from flask_mail import Message
 from io import TextIOWrapper
+from sqlalchemy.exc import IntegrityError
 import csv
     # Student, Adress, ContactInfo, Page, Tag, Person
 
@@ -11,25 +12,31 @@ app.config['MAIL_SERVER']='localhost'
 app.config['MAIL_PORT'] = 2525
 mail = Mail(app)
 
+class customException(Exception):
+    status_code = 400
+
+@app.errorhandler(customException)
+def handel_error(error):
+    return 'CUSTOM EXCEPTION HANDLED'
 
 @app.route('/user', methods=['PUT','POST','GET','DELETE'])
 def customer():
-    csv_file = request.files['file']
+    csv_file = request.files['files']
     csv_file = TextIOWrapper(csv_file, encoding='utf-8')
     csv_dict = csv.DictReader(csv_file)
     for row in csv_dict:
-        first_name = row.first_name
-        last_name = row.last_name
-        gender = row.gender
-        email = row.email
-        age = row.age
-        address = row.address
-        state = row.state
-        zipcode = row.zipcode
-        phoneNumber = row.phoneNumber
-        registrationDate = row.registrationDate
+        first_name = row['first_name']
+        last_name = row['last_name']
+        gender = row['gender']
+        email = row['email']
+        age = row['age']
+        address = row['address']
+        state = row['state']
+        zipcode = row['zipcode']
+        phoneNumber = row['phoneNumber']
+        registerationDate = row['registerationDate']
         if request.method == 'PUT':
-            admin = User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate).first()
+            admin = User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registerationDate=registerationDate).first()
             admin.email = email
             admin.first_name = first_name
             admin.last_name = last_name
@@ -39,9 +46,9 @@ def customer():
             admin.state = state
             admin.zipcode = zipcode
             admin.phoneNumber = phoneNumber
-            admin.registrationDate = registrationDate
+            admin.registrationDate = registerationDate
             db.session.commit()
-            return 'updated email id is '+ new_email
+            return 'updated email id is '+ email
 
         elif request.method == 'GET':
             s={}
@@ -58,10 +65,10 @@ def customer():
                     "state" : use.state,
                     "zipcode" : use.zipcode,
                     "phoneNumber" : use.phoneNumber,
-                    "registrationDate" : use.registrationDate
+                    "registerationDate" : use.registerationDate
                 }
                 i+=1
-            return s
+                return s
 
         elif request.method == 'DELETE':
             User.query.filter_by(email=email).delete()
@@ -69,10 +76,13 @@ def customer():
             return 'success deletion with username'
 
         elif request.method == 'POST':
-            user= User(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate)
-            db.session.add(user)
-            db.session.commit()
-            return 'Created new user with email {}'.format(email)
+            user= User(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registerationDate=registerationDate)
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except IntegrityError:
+                raise customException
+        return 'Created new user with email {}'.format(email)
 
 
 

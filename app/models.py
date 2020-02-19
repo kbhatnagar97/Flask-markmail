@@ -18,7 +18,7 @@ class User(db.Model):
     state = db.Column(db.String(120), index=True, unique=True)
     zipcode = db.Column(db.String(120), index=True, unique=True)
     phoneNumber = db.Column(db.String(120), index=True, unique=True)
-    registrationDate = db.Column(db.String(120), index=True, unique=True)
+    registerationDate = db.Column(db.String(120), index=True, unique=True)
     __tablename__ = 'Customer'
 
     def __repr__(self):
