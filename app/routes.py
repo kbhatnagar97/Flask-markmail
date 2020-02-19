@@ -1,74 +1,78 @@
 from flask import request
 from app import app, db
 from app.models import User, Template
-from flask_mail import Mail,Message
+from flask_mail import Mail
+from flask_mail import Message
+from io import TextIOWrapper
 import csv
     # Student, Adress, ContactInfo, Page, Tag, Person
 
 app.config['MAIL_SERVER']='localhost'
-app.config['MAIL_PORT'] = 225
+app.config['MAIL_PORT'] = 2525
 mail = Mail(app)
 
 
 @app.route('/user', methods=['PUT','POST','GET','DELETE'])
+def customer():
+    csv_file = request.files['file']
+    csv_file = TextIOWrapper(csv_file, encoding='utf-8')
+    csv_dict = csv.DictReader(csv_file)
+    for row in csv_dict:
+        first_name = row.first_name
+        last_name = row.last_name
+        gender = row.gender
+        email = row.email
+        age = row.age
+        address = row.address
+        state = row.state
+        zipcode = row.zipcode
+        phoneNumber = row.phoneNumber
+        registrationDate = row.registrationDate
+        if request.method == 'PUT':
+            admin = User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate).first()
+            admin.email = email
+            admin.first_name = first_name
+            admin.last_name = last_name
+            admin.gender = gender
+            admin.age = age
+            admin.address = address
+            admin.state = state
+            admin.zipcode = zipcode
+            admin.phoneNumber = phoneNumber
+            admin.registrationDate = registrationDate
+            db.session.commit()
+            return 'updated email id is '+ new_email
 
-def http_method():
-    first_name = request.json.get('first_name')
-    last_name = request.json.get('last_name')
-    gender = request.json.get('gender')
-    email = request.json.get('email')
-    age = request.json.get('age')
-    address = request.json.get('address')
-    state = request.json.get('state')
-    zipcode = request.json.get('zipcode')
-    phoneNumber = request.json.get('phoneNumber')
-    registrationDate = request.json.get('registrationDate')
-    if request.method == 'PUT':
-        admin = User.query.filter_by(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate).first()
-        admin.email = email
-        admin.first_name = first_name
-        admin.last_name = last_name
-        admin.gender = gender
-        admin.age = age
-        admin.address = address
-        admin.state = state
-        admin.zipcode = zipcode
-        admin.phoneNumber = phoneNumber
-        admin.registrationDate = registrationDate
-        db.session.commit()
-        return 'updated email id is '+ new_email
+        elif request.method == 'GET':
+            s={}
+            user = User.query.all()
+            i=0
+            for use in user:
+                s[i]={
+                    "first_name" : use.first_name,
+                    "last_name" : use.last_name,
+                    "gender" : use.gender,
+                    "email" : use.email,
+                    "age" : use.age,
+                    "address" : use.address,
+                    "state" : use.state,
+                    "zipcode" : use.zipcode,
+                    "phoneNumber" : use.phoneNumber,
+                    "registrationDate" : use.registrationDate
+                }
+                i+=1
+            return s
 
-    elif request.method == 'GET':
-        s={}
-        user = User.query.all()
-        print(user)
-        i=0
-        for use in user:
-            s[i]={
-                "first_name" : use.first_name,
-                "last_name" : use.last_name,
-                "gender" : use.gender,
-                "email" : use.email,
-                "age" : use.age,
-                "address" : use.address,
-                "state" : use.state,
-                "zipcode" : use.zipcode,
-                "phoneNumber" : use.phoneNumber,
-                "registrationDate" : use.registrationDate
-            }
-            i+=1
-        return s
+        elif request.method == 'DELETE':
+            User.query.filter_by(email=email).delete()
+            db.session.commit()
+            return 'success deletion with username'
 
-    elif request.method == 'DELETE':
-        User.query.filter_by(email=email).delete()
-        db.session.commit()
-        return 'success deletion with username'
-
-    elif request.method == 'POST':
-        user= User(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate)
-        db.session.add(user)
-        db.session.commit()
-        return 'Created new user with email {}'.format(email)
+        elif request.method == 'POST':
+            user= User(first_name=first_name,last_name=last_name,gender=gender,email=email,age=age,address=address,state=state,zipcode=zipcode,phoneNumber=phoneNumber,registrationDate=registrationDate)
+            db.session.add(user)
+            db.session.commit()
+            return 'Created new user with email {}'.format(email)
 
 
 
@@ -111,8 +115,16 @@ def template():
         return 'Created template'
 
 @app.route("/mail")
-def index():
-   msg = Message('Hello', sender = 'kshitij@gmail.com', recipients = ['id1@gmail.com'])
+def send_mail():
+   msg = Message(sender = 'test1@gmail.com', recipients = ['test2@gmail.com'])
    msg.body = "This is the email body"
+   msg.subject = "Test Email"
    mail.send(msg)
-   return "Sent"
+   return "Email Sent"
+
+# def testfunction1():
+#     with open('Customer.csv', 'r') as file:
+#         csv_file = csv.DictReader(file)
+#         for row in csv_file:
+#             print(row)
+#             return row
