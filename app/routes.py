@@ -176,8 +176,8 @@ def send_dmail():
        for email in request.json["recipients"]:
            msg = Message(sender = 'test1@gmail.com', recipients = [email])
            temp_user=Customer.query.filter_by(email=email).first()
-           # print(temp_user)
-           # print("AFDRgeragaskfgseufygweliyEGIUAYGFLEUGY")
+           print(temp_user)
+           print("AFDRgeragaskfgseufygweliyEGIUAYGFLEUGY")
            msg.html = "<h1>\
 	                        <center><b>New Years Sales</b></center>\
                         </h1>\
