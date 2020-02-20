@@ -25,7 +25,7 @@ class customException2(Exception):
 def handle_error(error):
     return 'The Template exist, kindly add a different template' #Exception handling message
 
-@app.route('/user', methods=['PUT','POST','GET','DELETE'])
+@app.route('/user', methods=['PUT','POST','GET','DELETE']) #importing with JSON
 def http_method():
     first_name = request.json.get('first_name')
     email = request.json.get('email')
@@ -106,11 +106,8 @@ def customer():
         except IntegrityError:
             raise customException1
     return 'Created new user'
-#
-#
-#
-@app.route('/template', methods=['PUT','POST','GET','DELETE'])
 
+@app.route('/template', methods=['PUT','POST','GET','DELETE'])
 def template():
     id = request.json.get('id')
     title = request.json.get('title')
@@ -179,6 +176,8 @@ def send_dmail():
        for email in request.json["recipients"]:
            msg = Message(sender = 'test1@gmail.com', recipients = [email])
            temp_user=Customer.query.filter_by(email=email).first()
+           # print(temp_user)
+           # print("AFDRgeragaskfgseufygweliyEGIUAYGFLEUGY")
            msg.html = "<h1>\
 	                        <center><b>New Years Sales</b></center>\
                         </h1>\
@@ -198,4 +197,17 @@ def send_dmail():
            msg.subject = "Test Email"
            mail.send(msg)
     return "Email Sent"
+
+@app.route('/selective', methods=['GET'])
+def selective():
+    if request.method == 'GET' :
+        users=Customer.query.all()
+        temp_dict={}
+        i=0
+        for user in users:
+            print(user.first_name)
+            temp_dict[i]={"first_name": user.first_name, "last_name": user.last_name, "id": user.id, "email": user.email,"gender": user.gender}
+            i+=1
+        return  temp_dict
+
 
