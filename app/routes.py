@@ -131,6 +131,9 @@ def template():
 
     elif request.method == 'GET':
          template= Template.query.filter_by(id=id).first()
+         print(Template)
+         print(template)
+         print('adfsgarw,fjshdlfjhwgfliu')
          return "<h1><center>{}</center></h1> \
                <p>{}</p> \
                <p>{}</p> \
